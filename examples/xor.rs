@@ -1,6 +1,6 @@
 use rusting_brain::{Activation, Dataset, Loss, Network, Optimizer, TrainConfig};
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let dataset = Dataset::new(
         vec![
             vec![0.0, 0.0],
@@ -19,21 +19,19 @@ fn main() {
         .optimizer(Optimizer::adam(0.05))
         .build();
 
-    let history = model
-        .fit(
-            &dataset,
-            TrainConfig {
-                epochs: 2_000,
-                batch_size: 4,
-                shuffle: true,
-                seed: Some(42),
-            },
-        )
-        .expect("training failed");
+    model.fit(
+        &dataset,
+        TrainConfig {
+            epochs: 2_000,
+            batch_size: 4,
+            shuffle: true,
+            seed: Some(11),
+        },
+    )?;
 
-    println!("Final loss: {:.6}", history.losses.last().unwrap());
     for input in &dataset.inputs {
-        let prediction = model.predict(input).expect("prediction failed");
-        println!("{input:?} -> {:.4}", prediction[0]);
+        println!("{input:?} -> {:.4}", model.predict(input)?[0]);
     }
+
+    Ok(())
 }
